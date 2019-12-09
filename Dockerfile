@@ -1,4 +1,5 @@
 FROM nvidia/cuda:10.1-base-ubuntu18.04
+LABEL maintainer "qts8n <efisher9680@gmail.com>"
 
 # ensure local python is preferred over distribution python
 ENV PATH /usr/local/bin:$PATH
