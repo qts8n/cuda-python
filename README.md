@@ -1,6 +1,6 @@
 # cuda-python
 
-nvidia/cuda:10.1-base-ubuntu18.04 based Python 3.7.5 image with some CV libraries
+nvidia/cuda:10.0-base-ubuntu18.04 based Python 3.7.5 image with some CV libraries
 
 ## References
 

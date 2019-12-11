@@ -1,5 +1,9 @@
-FROM nvidia/cuda:10.1-base-ubuntu18.04
+FROM nvidia/cuda:10.0-base-ubuntu18.04
 LABEL maintainer "qts8n <efisher9680@gmail.com>"
+
+# nvidia cuda 10.0 paths
+ENV LD_LIBRARY_PATH=/usr/local/cuda-10.0/lib64${LD_LIBRARY_PATH:+:${LD_LIBRARY_PATH}}
+ENV LIBRARY_PATH=${LIBRARY_PATH}:/usr/local/cuda-10.0/lib64
 
 # ensure local python is preferred over distribution python
 ENV PATH /usr/local/bin:$PATH
