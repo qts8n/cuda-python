@@ -1,5 +1,5 @@
-FROM nvidia/cuda:10.0-base-ubuntu18.04
-LABEL maintainer "qts8n <efisher9680@gmail.com>"
+FROM nvidia/cuda:10.0-cudnn7-runtime-ubuntu18.04
+LABEL maintainer="qts8n <efisher9680@gmail.com>"
 
 # nvidia cuda 10.0 paths
 ENV LD_LIBRARY_PATH=/usr/local/cuda-10.0/lib64${LD_LIBRARY_PATH:+:${LD_LIBRARY_PATH}}
