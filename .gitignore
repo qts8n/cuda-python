@@ -7,3 +7,10 @@
 *.iml
 out
 gen
+
+# VIM
+.swp?
+.swo
+Session.vim
+tags
+

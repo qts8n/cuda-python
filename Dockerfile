@@ -1,4 +1,4 @@
-FROM nvidia/cuda:10.0-cudnn7-runtime-ubuntu18.04
+FROM nvidia/cuda:10.0-cudnn7-devel-ubuntu18.04
 LABEL maintainer="qts8n <efisher9680@gmail.com>"
 
 # nvidia cuda 10.0 paths
@@ -163,7 +163,9 @@ RUN set -ex; \
 RUN apt-get update \
     && apt-get install -y --no-install-recommends gosu \
     && apt-get install -y --no-install-recommends libglib2.0-0 libsm6 libxrender1 libxext6 \
+    && apt-get install -y build-essential \
     && apt-get -y autoremove \
     && apt-get -y clean
 
 CMD ["python3"]
+
