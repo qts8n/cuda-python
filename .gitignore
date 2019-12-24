@@ -9,7 +9,8 @@ out
 gen
 
 # VIM
-.swp?
+.swp
+.sw
 .swo
 Session.vim
 tags
