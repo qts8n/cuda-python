@@ -1,13 +1,16 @@
-FROM nvidia/cuda:10.2-cudnn7-devel-ubuntu18.04
+FROM nvidia/cuda:9.1-cudnn7-runtime-ubuntu16.04
 LABEL maintainer="qts8n <efisher9680@gmail.com>"
 
-# nvidia cuda 10.2 paths
-ENV LD_LIBRARY_PATH=/usr/local/cuda-10.2/lib64${LD_LIBRARY_PATH:+:${LD_LIBRARY_PATH}}
-ENV LIBRARY_PATH=${LIBRARY_PATH}:/usr/local/cuda-10.2/lib64
+# nvidia cuda 9.1 paths
+ENV LD_LIBRARY_PATH=/usr/local/cuda-9.1/lib64${LD_LIBRARY_PATH:+:${LD_LIBRARY_PATH}}
+ENV LIBRARY_PATH=${LIBRARY_PATH}:/usr/local/cuda-9.1/lib64
 
 # ensure local python is preferred over distribution python
 ENV PATH /usr/local/bin:$PATH
 
+# http://bugs.python.org/issue19846
+# > At the moment, setting "LANG=C" on a Linux system *fundamentally breaks Python 3*
+# > and that's kinda not OK
 ENV LANG C.UTF-8
 
 # ensure annoying packages like `tzdata` won't ask a lot of questions
@@ -15,10 +18,8 @@ ARG DEBIAN_FRONTEND=noninteractive
 
 # runtime dependencies
 RUN apt-get update && \
-    apt-get install -y --no-install-recommends ca-certificates curl netbase wget && \
+    apt-get install -y --no-install-recommends ca-certificates curl netbase && \
     rm -rf /var/lib/apt/lists/*
-
-RUN apt-get install -y build-essential
 
 ENV GPG_KEY 0D96DF4D4110E5C43FBFB17F2D347EA6AA65421D
 ENV PYTHON_VERSION 3.7.5
@@ -41,9 +42,11 @@ RUN set -ex \
         libncursesw5-dev \
         libreadline-dev \
         libsqlite3-dev \
+        libssl-dev \
         make \
         tk-dev \
         uuid-dev \
+        wget \
         xz-utils \
         zlib1g-dev \
         $(command -v gpg > /dev/null || echo 'gnupg dirmngr') \
@@ -131,3 +134,39 @@ RUN cd /usr/local/bin \
 	&& ln -s pydoc3 pydoc \
 	&& ln -s python3 python \
 	&& ln -s python3-config python-config
+
+# if this is called "PIP_VERSION", pip throws "ValueError: invalid truth value '<VERSION>'"
+ENV PYTHON_PIP_VERSION 19.3.1
+ENV PYTHON_GET_PIP_URL https://github.com/pypa/get-pip/raw/ffe826207a010164265d9cc807978e3604d18ca0/get-pip.py
+ENV PYTHON_GET_PIP_SHA256 b86f36cc4345ae87bfd4f10ef6b2dbfa7a872fbff70608a1e43944d283fd0eee
+
+RUN set -ex; \
+	savedAptMark="$(apt-mark showmanual)"; \
+	apt-get update; \
+	apt-get install -y --no-install-recommends wget; \
+	wget -O get-pip.py "$PYTHON_GET_PIP_URL"; \
+	echo "$PYTHON_GET_PIP_SHA256 *get-pip.py" | sha256sum --check --strict -; \
+	apt-mark auto '.*' > /dev/null; \
+	[ -z "$savedAptMark" ] || apt-mark manual $savedAptMark; \
+	apt-get purge -y --auto-remove -o APT::AutoRemove::RecommendsImportant=false; \
+	rm -rf /var/lib/apt/lists/*; \
+	python get-pip.py --disable-pip-version-check --no-cache-dir "pip==$PYTHON_PIP_VERSION"; \
+	pip --version; \
+	find /usr/local -depth \
+		\( \
+			\( -type d -a \( -name test -o -name tests -o -name idle_test \) \) \
+			-o \
+			\( -type f -a \( -name '*.pyc' -o -name '*.pyo' \) \) \
+		\) -exec rm -rf '{}' +; \
+	rm -f get-pip.py
+
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends libopenblas-dev \
+    	software-properties-common  \
+    && add-apt-repository ppa:ubuntu-toolchain-r/test -y \
+    && apt-get update \
+    && apt-get upgrade libstdc++6 -y \
+    && apt-get -y autoremove \
+    && apt-get -y clean
+
+CMD ["python3"]
