@@ -41,6 +41,7 @@ RUN set -ex \
         libncursesw5-dev \
         libreadline-dev \
         libsqlite3-dev \
+        libssl-dev \
         make \
         tk-dev \
         uuid-dev \
